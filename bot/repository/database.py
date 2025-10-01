@@ -109,6 +109,14 @@ class SQLDatabase(DatabaseBase):
             return [participant_orm_to_entity(o) for o in orm_objs]
         
 
+    async def get_participants(self, team_id: int):
+        async with self._SessionLocal() as session:
+            stmt = select(Participant).where(Participant.team_id == team_id)
+            result = await session.execute(stmt)
+            orm_objs = result.scalars().all()
+            return [participant_orm_to_entity(o) for o in orm_objs]
+        
+
     async def update_participant(self, participant_id: int, **kwargs):
         async with self._SessionLocal() as session:
             participant_orm = await session.get(Participant, participant_id)
