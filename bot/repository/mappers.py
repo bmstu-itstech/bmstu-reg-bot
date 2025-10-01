@@ -6,6 +6,7 @@ from typing import List
 def participant_orm_to_entity(orm_obj: Participant) -> ParticipantEntity:
     return ParticipantEntity(
         user_id=orm_obj.user_id,
+        username=orm_obj.username,
         last_name=orm_obj.last_name,
         first_name=orm_obj.first_name,
         middle_name=orm_obj.middle_name,

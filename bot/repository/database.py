@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from domain.models import ParticipantEntity, TeamEntity
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import select, delete
-from .models import Base, Participant, Team
+from .models import Base, Participant, Team, PDAgreement
 from typing import List
 from .config import SQLITE_DATABASE_URL
 from pathlib import Path
@@ -60,6 +60,14 @@ class DatabaseBase(ABC):
     
     @abstractmethod
     async def delete_team(self, team_id: int):
+        pass
+
+    @abstractmethod
+    async def save_agreement(self, user_id: int):
+        pass
+
+    @abstractmethod
+    async def get_agreement(self, user_id: int) -> PDAgreement:
         pass
 
 
@@ -189,6 +197,21 @@ class SQLDatabase(DatabaseBase):
             stmt = delete(Team).where(Team.id == team_id)
             await session.execute(stmt)
             await session.commit()
+
+
+    #---PD Agreement---
+    async def save_agreement(self, user_id: int):
+        async with self._SessionLocal() as session:
+            agreement = PDAgreement(user_id)
+            await session.add(agreement)
+            await session.commit()
+
+
+    async def get_agreement(self, user_id: int) -> PDAgreement:
+        async with self._SessionLocal() as session:
+            stmt = select(PDAgreement).where(PDAgreement.user_id == user_id)
+            result = await session.execute(stmt)
+            return result.scalar()
 
 
 db = SQLDatabase()

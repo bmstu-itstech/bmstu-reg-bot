@@ -10,10 +10,17 @@ class Base(DeclarativeBase):
     pass
 
 
+class PDAgreement():
+    __tablename__ = 'pd_agreement'
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+
 class Participant(Base):
     __tablename__ = 'participants'
 
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String, nullable=True)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     middle_name: Mapped[str] = mapped_column(String, nullable=False)
