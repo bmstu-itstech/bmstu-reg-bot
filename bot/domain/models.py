@@ -5,6 +5,7 @@ from typing import Optional
 @dataclass
 class ParticipantEntity:
     id: Optional[int]
+    telegram_username: str
     last_name: str
     first_name: str
     middle_name: str

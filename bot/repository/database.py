@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import select, delete
 from .models import Base, Participant, Team
 from typing import List
-from config import SQLITE_DATABASE_URL
+from .config import SQLITE_DATABASE_URL
 from pathlib import Path
 from .mappers import participant_orm_to_entity, team_orm_to_entity
 
@@ -72,7 +72,7 @@ class SQLDatabase(DatabaseBase):
     async def init_db(self):
         self._db_path = Path(self._db_name.split(':///')[-1])
         if not self._db_path.exists():
-            async with self.engine.begin() as conn:
+            async with self._engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
 
     
@@ -137,7 +137,7 @@ class SQLDatabase(DatabaseBase):
             session.add(team)
             await session.commit()
             await session.refresh(team)
-            return participant_orm_to_entity(team)
+            return team_orm_to_entity(team)
 
 
     async def get_team(self, id: int) -> TeamEntity:
@@ -183,3 +183,7 @@ class SQLDatabase(DatabaseBase):
             stmt = delete(Team).where(Team.id == team_id)
             await session.execute(stmt)
             await session.commit()
+
+
+db = SQLDatabase()
+asyncio.run(db.init_db())
