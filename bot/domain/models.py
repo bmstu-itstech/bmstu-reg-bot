@@ -4,7 +4,8 @@ from typing import Optional, List
 
 @dataclass
 class ParticipantEntity:
-    user_id: Optional[int]
+    user_id: int
+    username: Optional[str]
     last_name: str
     first_name: str
     middle_name: str
