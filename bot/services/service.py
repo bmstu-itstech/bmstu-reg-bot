@@ -8,6 +8,20 @@ class Service:
         self._db = db
 
 
+    async def get_username_by_id(self, user_id: int) -> str:
+        participant = await self._db.get_participant_by_id(user_id)
+        return participant.username
+
+
+    async def check_agreement(self, user_id: int) -> bool:
+        user = await self._db.get_agreement(user_id)
+        return user != None
+    
+    
+    async def save_agreement(self, user_id: int):
+        await self._db.save_agreement(user_id)
+
+
     async def register_participant(self, user_id: int, **kwargs) -> ParticipantEntity:
         participant = await self._db.get_participant_by_id(user_id)
         if participant:
@@ -70,7 +84,7 @@ class Service:
         if teammate.team_id != team.id:
             raise NotTeammate(f'{teammate.telegram_username} is not in team')
         
-        return self._db.update_participant(teammate.id, team_id=None)
+        return self._db.update_participant(teammate.user_id, team_id=None)
         
 
 
