@@ -1,11 +1,11 @@
 from domain.models import ParticipantEntity, TeamEntity
 from .models import Participant, Team
+from typing import List
 
 
 def participant_orm_to_entity(orm_obj: Participant) -> ParticipantEntity:
     return ParticipantEntity(
-        id=orm_obj.id,
-        telegram_username=orm_obj.telegram_username,
+        user_id=orm_obj.user_id,
         last_name=orm_obj.last_name,
         first_name=orm_obj.first_name,
         middle_name=orm_obj.middle_name,
@@ -16,9 +16,9 @@ def participant_orm_to_entity(orm_obj: Participant) -> ParticipantEntity:
     )
 
 
-def team_orm_to_entity(orm_obj: Team) -> TeamEntity:
+def team_orm_to_entity(orm_obj: Team, participants: List[ParticipantEntity] = []) -> TeamEntity:
     return TeamEntity(
         id=orm_obj.id,
         name=orm_obj.name,
-        participant_count=orm_obj.participant_count
+        participant_ids=[p.id for p in participants]
     )

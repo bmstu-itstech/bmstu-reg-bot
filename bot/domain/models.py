@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 
 @dataclass
 class ParticipantEntity:
-    id: Optional[int]
-    telegram_username: str
+    user_id: Optional[int]
     last_name: str
     first_name: str
     middle_name: str
@@ -19,4 +18,4 @@ class ParticipantEntity:
 class TeamEntity:
     id: Optional[int]
     name: str
-    participant_count: int
+    participant_ids: List[int]

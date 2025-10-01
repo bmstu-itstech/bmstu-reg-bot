@@ -17,15 +17,15 @@ class DatabaseBase(ABC):
         pass
     
     @abstractmethod
-    async def get_participant(self, participant_id: int) -> ParticipantEntity:
-        pass
-
-    @abstractmethod
-    async def get_participant(self, telegram_username: str) -> ParticipantEntity:
+    async def get_participant_by_id(self, user_id: int) -> ParticipantEntity:
         pass
 
     @abstractmethod
     async def get_participants(self) -> List[ParticipantEntity]:
+        pass
+
+    @abstractmethod
+    async def get_participants_by_team_id(self, team_id: int) -> List[ParticipantEntity]:
         pass
     
     @abstractmethod
@@ -42,12 +42,13 @@ class DatabaseBase(ABC):
         pass
     
     @abstractmethod
-    async def get_team(self, id: int) -> TeamEntity:
+    async def get_team_by_id(self, id: int) -> TeamEntity:
         pass
 
     @abstractmethod
-    async def get_team(self, name: str) -> TeamEntity:
+    async def get_team_by_name(self, name: str) -> TeamEntity:
         pass
+
 
     @abstractmethod
     async def get_teams(self) -> List[TeamEntity]:
@@ -85,17 +86,9 @@ class SQLDatabase(DatabaseBase):
             return participant_orm_to_entity(participant)
 
 
-    async def get_participant(self, participant_id: int) -> ParticipantEntity:
+    async def get_participant_by_id(self, user_id: int) -> ParticipantEntity:
         async with self._SessionLocal() as session:
-            stmt = select(Participant).where(Participant.id == participant_id)
-            result = await session.execute(stmt)
-            orm_obj = result.scalars().first()
-            return participant_orm_to_entity(orm_obj) if orm_obj else None
-        
-
-    async def get_participant(self, telegram_username: str) -> ParticipantEntity:
-        async with self._SessionLocal() as session:
-            stmt = select(Participant).where(Participant.telegram_username == telegram_username)
+            stmt = select(Participant).where(Participant.user_id == user_id)
             result = await session.execute(stmt)
             orm_obj = result.scalars().first()
             return participant_orm_to_entity(orm_obj) if orm_obj else None
@@ -109,7 +102,7 @@ class SQLDatabase(DatabaseBase):
             return [participant_orm_to_entity(o) for o in orm_objs]
         
 
-    async def get_participants(self, team_id: int):
+    async def get_participants_by_team_id(self, team_id: int) -> List[ParticipantEntity]:
         async with self._SessionLocal() as session:
             stmt = select(Participant).where(Participant.team_id == team_id)
             result = await session.execute(stmt)
@@ -144,24 +137,27 @@ class SQLDatabase(DatabaseBase):
             team = Team(**kwargs)
             session.add(team)
             await session.commit()
-            await session.refresh(team)
             return team_orm_to_entity(team)
 
 
-    async def get_team(self, id: int) -> TeamEntity:
+    async def get_team_by_id(self, id: int) -> TeamEntity:
         async with self._SessionLocal() as session:
             stmt = select(Team).where(Team.id == id)
             result = await session.execute(stmt)
             orm_obj = result.scalars().first()
-            return team_orm_to_entity(orm_obj) if orm_obj else None
+            return team_orm_to_entity(
+                orm_obj, await self.get_participants_by_team_id(orm_obj.id)
+            ) if orm_obj else None
 
 
-    async def get_team(self, name: str) -> TeamEntity:
+    async def get_team_by_name(self, name: str) -> TeamEntity:
         async with self._SessionLocal() as session:
             stmt = select(Team).where(Team.name == name)
             result = await session.execute(stmt)
             orm_obj = result.scalars().first()
-            return team_orm_to_entity(orm_obj) if orm_obj else None
+            return team_orm_to_entity(
+                orm_obj, await self.get_participants_by_team_id(orm_obj.id)
+            ) if orm_obj else None
 
 
     async def get_teams(self) -> List[TeamEntity]:
@@ -169,7 +165,9 @@ class SQLDatabase(DatabaseBase):
             stmt = select(Team)
             result = await session.execute(stmt)
             orm_objs = result.scalars().all()
-            return [team_orm_to_entity(o) for o in orm_objs]
+            return [team_orm_to_entity(
+                o, await self.get_participants_by_team_id(o.id)
+            ) for o in orm_objs]
 
 
     async def update_team(self, team_id: int, **kwargs):

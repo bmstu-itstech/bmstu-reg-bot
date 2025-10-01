@@ -13,8 +13,7 @@ class Base(DeclarativeBase):
 class Participant(Base):
     __tablename__ = 'participants'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    telegram_username: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     middle_name: Mapped[str] = mapped_column(String, nullable=False)
@@ -31,6 +30,5 @@ class Team(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    participant_count: Mapped[int] = mapped_column(Integer, nullable=False)
 
     participants: Mapped[List['Participant']] = relationship(back_populates='team')
