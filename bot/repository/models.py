@@ -14,6 +14,7 @@ class Participant(Base):
     __tablename__ = 'participants'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    telegram_username: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     middle_name: Mapped[str] = mapped_column(String, nullable=False)
