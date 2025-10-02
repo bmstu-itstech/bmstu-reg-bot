@@ -1,6 +1,6 @@
 from repository.database import DatabaseBase, db
 from domain.models import TeamEntity, ParticipantEntity
-from .exc import AlreadyExists, NotRegistered, TooManyTeammates, NotTeammate
+from .exc import AlreadyExists, NotRegistered, TooManyTeammates, NotTeammate, AccessDenied
 from .config import MAX_TEAMMATES
 
 class Service:
@@ -56,6 +56,11 @@ class Service:
         return await self._db.create_team(name=name)
     
 
+    async def get_team_id(self, name: str) -> int:
+        team = await self._db.get_team_by_name(name)
+        return team.id if team else None
+
+
     async def add_teammate(self, team_name: str, user_id: int):
         team = await self._db.get_team_by_name(team_name)
         if not team:
@@ -84,8 +89,19 @@ class Service:
         if teammate.team_id != team.id:
             raise NotTeammate(f'{teammate.telegram_username} is not in team')
         
-        return self._db.update_participant(teammate.user_id, team_id=None)
+        return await self._db.update_participant(teammate.user_id, team_id=None)
         
+
+    async def delete_team(self, team_name: str, user_id: int = 0):
+        team =  await self._db.get_team_by_name(team_name)
+
+        if not team:
+            raise NotRegistered(f'The team {team_name} does not exist')
+
+        # if user_id not in team.participant_ids:
+        #     raise AccessDenied(f'User {user_id} is not team owner')
+        
+        await self._db.delete_team(team.id)
 
 
 service = Service(db)

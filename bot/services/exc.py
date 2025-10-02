@@ -9,3 +9,6 @@ class TooManyTeammates(Exception):
 
 class NotTeammate(Exception):
     pass
+
+class AccessDenied(Exception):
+    pass
