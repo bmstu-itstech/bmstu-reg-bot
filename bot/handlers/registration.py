@@ -6,7 +6,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from services.exc import NotRegistered, TooManyTeammates
 from services.service import service
 from .keyboards import agreement_kb, university_kb, register_kb, create_profile_kb, confirm_kb
-from .states import Registration, TeamFSM
+from .states import Registration, Team
 
 router = Router()
 
@@ -16,13 +16,18 @@ async def register_handler(msg: Message, state: FSMContext):
         'Согласие на обработку персональных данных (152-ФЗ)',
         reply_markup=agreement_kb
     )
-    await state.set_state(Registration.confirm)
+    await state.set_state(Registration.confirm_agreement)
 
 
-@router.message(F.text, Registration.confirm)
-async def agreement_yes(msg: Message, state: FSMContext):
-    await msg.answer('Введите ФИО через пробелы\n\nПример: Иванов Иван Иванович')
-    await state.set_state(Registration.fio)
+@router.callback_query(F.text, Registration.confirm_agreement)
+async def agreement_yes(query: CallbackQuery, state: FSMContext):
+    callback_data = query.data
+    if callback_data == 'agree':
+        await query.answer(
+            'Введите ФИО через пробелы\n\nПример: Иванов Иван Иванович'
+        )
+        await state.set_state(Registration.fio)
+        await query.answer()
 
 
 @router.message(F.text, Registration.fio)
@@ -103,9 +108,12 @@ async def input_passport(msg: Message, state: FSMContext):
 
 
 @router.callback_query(Registration.confirm)
-async def confirm(query: CallbackQuery, callback_data: str, state: FSMContext):
-    if callback_data == 'confirmed':
-        data = state.get_data()
+async def confirm(query: CallbackQuery, state: FSMContext):
+    callback_data = query.data
+    print(callback_data)
+
+    if callback_data == 'confirm':
+        data = await state.get_data()
         fio = data.get('fio').split(' ')
         participant = await service.register_participant(
             user_id=query.from_user.id,
@@ -122,38 +130,3 @@ async def confirm(query: CallbackQuery, callback_data: str, state: FSMContext):
         await query.answer('Регистрация отменена.')
         await state.clear()
         await state.set_state()
-
-
-# --- Команды ---
-@router.message(commands=['create_team'])
-async def create_team_start(msg: Message, state: FSMContext):
-    await msg.answer('Введите название команды (должно быть уникальным):')
-    await state.set_state(TeamFSM.name)
-
-
-@router.message(TeamFSM.name)
-async def create_team_name(msg: Message, state: FSMContext):
-    await msg.answer(f'Команда '{msg.text}' создана! Теперь пригласите участников.')
-    await state.clear()
-
-
-@router.message(commands=['join_team'])
-async def join_team_start(msg: Message, state: FSMContext):
-    await msg.answer('Введите код приглашения команды:')
-    await state.set_state(TeamFSM.join_code)
-
-
-@router.message(TeamFSM.join_code)
-async def join_team_code(msg: Message, state: FSMContext):
-    await msg.answer(f'Вы вступили в команду с кодом {msg.text}!')
-    await state.clear()
-
-
-@router.message(commands=['my_team'])
-async def my_team(msg: Message):
-    await msg.answer('Ваша команда: ... (участники)')
-
-
-@router.message(commands=['leave_team'])
-async def leave_team(msg: Message):
-    await msg.answer('Вы покинули команду.')

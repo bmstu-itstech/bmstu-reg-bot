@@ -2,17 +2,18 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.filters import Command
 
 from services.exc import NotRegistered, TooManyTeammates
 from services.service import service
 from .keyboards import agreement_kb, university_kb, register_kb, create_profile_kb, confirm_kb
-from .states import Registration, TeamFSM
+from .states import Registration
 
 
 router = Router()
 
 
-@router.message(commands=['start'])
+@router.message(Command("start"))
 async def start_handler(msg: Message, state: FSMContext):
     user_id = msg.from_user.id
 

@@ -22,7 +22,7 @@ register_kb = ReplyKeyboardMarkup(
 )
 
 confirm_kb = InlineKeyboardMarkup(
-    keyboard=[
+    inline_keyboard=[
         [
             InlineKeyboardButton(text='Да', callback_data='confirmed'), 
             InlineKeyboardButton(text='Нет', callback_data='not_confirmed')
