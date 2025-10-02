@@ -21,5 +21,5 @@ def team_orm_to_entity(orm_obj: Team, participants: List[ParticipantEntity] = []
     return TeamEntity(
         id=orm_obj.id,
         name=orm_obj.name,
-        participant_ids=[p.id for p in participants]
+        participant_ids=[p.user_id for p in participants]
     )
