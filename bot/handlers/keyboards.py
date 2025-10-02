@@ -1,16 +1,20 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 
-agreement_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [InlineKeyboardButton(text="Согласен", callback_data="agree")]
-    ]
+agreement_kb = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Согласен", callback_data="agree")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
 )
 
-university_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [InlineKeyboardButton(text='Да', callback_data='bmstu')],
-        [InlineKeyboardButton(text='Нет', callback_data='other_university')]
-    ]
+university_kb = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text='Да', callback_data='bmstu')],
+        [KeyboardButton(text='Нет', callback_data='other_university')]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
 )
 
 register_kb = ReplyKeyboardMarkup(
@@ -21,13 +25,15 @@ register_kb = ReplyKeyboardMarkup(
     one_time_keyboard=True
 )
 
-confirm_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
+confirm_kb = ReplyKeyboardMarkup(
+    keyboard=[
         [
-            InlineKeyboardButton(text='Да', callback_data='confirmed'), 
-            InlineKeyboardButton(text='Нет', callback_data='not_confirmed')
+            KeyboardButton(text='Да', callback_data='confirmed'), 
+            KeyboardButton(text='Нет', callback_data='not_confirmed')
         ]
-    ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
 )
 
 
@@ -45,7 +51,7 @@ def create_profile_kb(has_team: bool):
         keyboard=[
             [KeyboardButton(text='Профиль')],
             [KeyboardButton(text='Вступить в команду')],
-            [KeyboardButton(text='Создать команду'), KeyboardButton(text='Удалить команду')]
+            [KeyboardButton(text='Создать команду')]
         ],
         resize_keyboard=True
     )

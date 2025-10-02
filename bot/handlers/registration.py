@@ -19,29 +19,18 @@ async def start_registration(msg: Message, state: FSMContext):
         reply_markup=agreement_kb
     )
 
-@router.callback_query(Registration.agreement)
-async def agreement_yes(query: CallbackQuery, state: FSMContext):
-    await query.message.answer(
-        "Введите ФИО через пробелы\n\nПример: Иванов Иван Иванович"
+@router.message(F.text == 'Согласен', Registration.agreement)
+async def agreement_yes(msg: Message, state: FSMContext):
+    await msg.answer(
+        "Введите ФИО через пробелы\n\nПример: Иванов Иван (Иванович)"
     )
     await state.set_state(Registration.fio)
-    await query.answer()
-
-
-@router.callback_query(Registration.confirm_agreement)
-async def agreement_yes(query: CallbackQuery, state: FSMContext):
-    callback_data = query.data
-    if callback_data == 'agree':
-        await query.message.answer(
-            'Введите ФИО через пробелы\n\nПример: Иванов Иван Иванович'
-        )
-        await state.set_state(Registration.fio)
         
 
 @router.message(F.text, Registration.fio)
 async def input_fio(msg: Message, state: FSMContext):
     fio = msg.text.split(' ')
-    if len(fio) != 3:
+    if len(fio) < 2:
         await msg.answer('ФИО заполнено некорректно, попробуйте еще раз')
         await state.set_state(Registration.fio)
         return
@@ -54,16 +43,18 @@ async def input_fio(msg: Message, state: FSMContext):
     await state.set_state(Registration.university)
 
 
-@router.callback_query(Registration.university)
-async def university(query: CallbackQuery, state: FSMContext):
-    if query.data == 'bmstu':
-        await state.update_data(university='МГТУ им. Баумана')
-        await state.set_state(Registration.group)
-        await query.message.answer('Введите учебную группу, например РК9-31Б')
-    else:
-        await state.update_data(university='Other')
-        await state.set_state(Registration.other_university)
-        await query.message.answer('Введите название ВУЗа')
+@router.message(F.text == 'Да', Registration.university)
+async def university(msg: Message, state: FSMContext):
+    await state.update_data(university='МГТУ им. Баумана')
+    await state.set_state(Registration.group)
+    await msg.answer('Введите учебную группу, например РК9-31Б')
+
+
+@router.message(F.text == 'Нет', Registration.university)
+async def university(msg: Message, state: FSMContext):
+    await state.update_data(university='Other')
+    await state.set_state(Registration.other_university)
+    await msg.answer('Введите название ВУЗа')
     
 
 @router.message(F.text, Registration.other_university)
@@ -122,39 +113,42 @@ async def input_passport(msg: Message, state: FSMContext):
     await check_data(msg, state)
 
 
-@router.callback_query(Registration.confirm)
-async def confirm(query: CallbackQuery, state: FSMContext):
-    if query.data == 'confirmed':
-        try:
-            pending_team = team_cache.pop(query.from_user.id, None)
-            team_id = await service.get_team_id(pending_team)
+@router.message(F.text == 'Да', Registration.confirm)
+async def confirm(msg: Message, state: FSMContext):
+    try:
+        pending_team = team_cache.pop(msg.from_user.id, None)
+        team_id = await service.get_team_id(pending_team)
 
-            data = await state.get_data()
-            fio = data.get('fio').split(' ')
-            participant = await service.register_participant(
-                user_id=query.from_user.id,
-                username=query.from_user.username,
-                last_name=fio[0],
-                first_name=fio[1],
-                middle_name=fio[2],
-                university=data.get('university'),
-                group=data.get('group'),
-                passport=data.get('passport'),
-                team_id=team_id
-            )
-            await query.message.answer(
-                'Вы зарегистрированы!',
-                reply_markup=create_profile_kb(has_team=False)
-            )
-        except AlreadyExists:
-            await query.message.ansewr(
-                'Пользователь с вашим ником уже зарегистрирован',
-                reply_markup=register_kb
-            )
-    else:
-        await state.clear()
-        await state.set_state()
-        await query.message.answer(
-            'Регистрация отменена',
+        data = await state.get_data()
+        fio = data.get('fio').split(' ')
+        participant = await service.register_participant(
+            user_id=msg.from_user.id,
+            username=msg.from_user.username,
+            last_name=fio[0],
+            first_name=fio[1],
+            middle_name=fio[2] if len(fio) > 2 else None,
+            university=data.get('university'),
+            group=data.get('group'),
+            passport=data.get('passport'),
+            team_id=team_id
+        )
+        await msg.answer(
+            'Вы зарегистрированы!',
+            reply_markup=create_profile_kb(has_team=False)
+        )
+            
+    except AlreadyExists:
+        await msg.answer(
+            'Пользователь с вашим ником уже зарегистрирован',
             reply_markup=register_kb
         )
+
+
+@router.message(F.text == 'Нет', Registration.confirm)
+async def confirm(msg: Message, state: FSMContext):
+    await state.clear()
+    await state.set_state()
+    await msg.answer(
+        'Регистрация отменена',
+        reply_markup=register_kb
+    )

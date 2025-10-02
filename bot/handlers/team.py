@@ -5,6 +5,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from services.exc import NotRegistered, TooManyTeammates, AlreadyExists
 from services.service import service
+from config import BOT_TELEGRAM_NAME, MAX_TEAMMATES
 from .keyboards import agreement_kb, university_kb, register_kb, create_profile_kb, confirm_kb
 from .states import Registration, Team
 
@@ -36,7 +37,7 @@ async def display_my_team(msg: Message):
         members_str = '\n'.join(['@' + name for name in members_id if name])
 
         await msg.answer(
-            'Твоя команда:\n'
+            f'Твоя команда ({len(members_id)}/{MAX_TEAMMATES}):\n'
             f'{members_str}'
         )
     except NotRegistered:
@@ -167,7 +168,8 @@ async def enter_team_name(msg: Message, state: FSMContext):
         team = await service.create_team(team_name)
         await service.add_teammate(team.name, msg.from_user.id)
         await msg.answer(
-            f'Команда {team.name} создана!',
+            f'Команда {team.name} создана!'
+            f'Ссылка для приглашения: https://t.me/{BOT_TELEGRAM_NAME}?start={team_name}',
             reply_markup=create_profile_kb(has_team=True)
         )
         await state.clear()
