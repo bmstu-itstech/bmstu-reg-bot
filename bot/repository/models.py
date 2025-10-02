@@ -26,7 +26,7 @@ class Participant(Base):
     middle_name: Mapped[str] = mapped_column(String, nullable=False)
     university: Mapped[str] = mapped_column(String, nullable=False)
     group: Mapped[str] = mapped_column(String, nullable=True)
-    passport: Mapped[str] = mapped_column(String, nullable=False)
+    passport: Mapped[str] = mapped_column(String, nullable=True)
     team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"), nullable=True)
 
     team: Mapped['Team'] = relationship(back_populates='participants')
