@@ -1,7 +1,7 @@
 from repository.database import DatabaseBase, db
 from domain.models import TeamEntity, ParticipantEntity
 from .exc import AlreadyExists, NotRegistered, TooManyTeammates, NotTeammate, AccessDenied
-from .config import MAX_TEAMMATES
+from config import MAX_TEAMMATES
 
 class Service:
     def __init__(self, db: DatabaseBase):

@@ -1,0 +1,2 @@
+BOT_TELEGRAM_NAME='cg_ridge_quizbot'
+MAX_TEAMMATES=3
