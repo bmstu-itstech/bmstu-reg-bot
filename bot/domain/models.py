@@ -8,7 +8,7 @@ class ParticipantEntity:
     username: Optional[str]
     last_name: str
     first_name: str
-    middle_name: str
+    middle_name: Optional[str]
     university: str
     group: Optional[str]
     passport: str

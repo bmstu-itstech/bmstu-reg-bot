@@ -23,7 +23,7 @@ class Participant(Base):
     username: Mapped[str] = mapped_column(String, nullable=True)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
-    middle_name: Mapped[str] = mapped_column(String, nullable=False)
+    middle_name: Mapped[str] = mapped_column(String, nullable=True)
     university: Mapped[str] = mapped_column(String, nullable=False)
     group: Mapped[str] = mapped_column(String, nullable=True)
     passport: Mapped[str] = mapped_column(String, nullable=True)
