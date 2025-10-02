@@ -1,6 +1,7 @@
 from aiogram.fsm.state import State, StatesGroup
 
 class Registration(StatesGroup):
+    start = State()
     agreement = State()
     confirm_agreement = State()
     fio = State()
@@ -8,7 +9,9 @@ class Registration(StatesGroup):
     other_university = State()
     group = State()
     passport = State()
+    check_data = State()
     confirm = State()
 
 class Team(StatesGroup):
-    name = State()
+    join = State()
+    create = State()

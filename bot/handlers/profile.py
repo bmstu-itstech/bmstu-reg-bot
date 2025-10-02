@@ -8,35 +8,77 @@ from services.exc import NotRegistered, TooManyTeammates
 from services.service import service
 from .keyboards import agreement_kb, university_kb, register_kb, create_profile_kb, confirm_kb
 from .states import Registration
+from .team import join_team
 
 
 router = Router()
 
 
+team_cache = {}
+
+
 @router.message(Command("start"))
 async def start_handler(msg: Message, state: FSMContext):
+    await msg.answer(
+        'Добро пожаловать!'
+    )
+
+    params = msg.text.split()
+    if len(params) > 1:
+        global team_cache
+        team_name = params[1]
+        team_cache[msg.from_user.id] = team_name
+        print(team_cache.get(msg.from_user.id))
+
+
     user_id = msg.from_user.id
 
     profile = await service.get_profile(user_id)
 
     if not profile:
         await msg.answer(
-            'Добро пожаловать в бота!',
+            'Для продолжения нужна регистрация',
             reply_markup=register_kb
         )
+        return
     else:
         team = await service.get_participant_team(user_id)
-        main_kb = create_profile_kb(True if team else False)
 
         await msg.answer(
             'Рады вас видеть снова)',
-            reply_markup=main_kb
+            reply_markup=create_profile_kb(True if team else False)
         )
 
-    profile = await service.get_profile(user_id)
-    if not profile:
-        await msg.answer('Для продолжения нужна регистрация. Давайте начнем.')
-        await state.set_state(Registration.agreement)
+    team = await service.get_participant_team(user_id)
+
+    if team:
+        await msg.answer(
+            f"Вы уже состоите в команде: {team.name}",
+            reply_markup=create_profile_kb(True)
+        )
+    else:
+        if team_name:
+            try:
+                await service.add_teammate(team_name, user_id)
+                await msg.answer(
+                    f"Вы успешно присоединились к команде {team_name}!",
+                    reply_markup=create_profile_kb(True)
+                )
+            except TooManyTeammates:
+                await msg.answer(
+                    f'В команде {team_name} слишком много участников\n\n'
+                    'Вы можете вступить в другую команду или создать свою'
+                )
+            except NotRegistered:
+                await msg.answer(
+                    f'Команды {team_name} не существует\n\n'
+                    'Проверьте название, вступите в другую команду или создайте свою'
+                )
+        else:
+            await msg.answer(
+                "Рады вас видеть снова!",
+                reply_markup=create_profile_kb(False)
+            )
 
 
 @router.message(F.text == 'Профиль')

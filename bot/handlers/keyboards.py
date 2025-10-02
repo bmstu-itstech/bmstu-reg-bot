@@ -44,6 +44,7 @@ def create_profile_kb(has_team: bool):
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='Профиль')],
+            [KeyboardButton(text='Вступить в команду')],
             [KeyboardButton(text='Создать команду'), KeyboardButton(text='Удалить команду')]
         ],
         resize_keyboard=True
