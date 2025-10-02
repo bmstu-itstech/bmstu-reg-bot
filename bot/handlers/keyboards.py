@@ -31,18 +31,20 @@ confirm_kb = InlineKeyboardMarkup(
 )
 
 
-def create_profile_kb(registered: bool, has_team: bool):
+def create_profile_kb(has_team: bool):
     if has_team:
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text='Профиль')],
                 [KeyboardButton(text='Покинуть команду'), KeyboardButton(text='Команда')]
-            ]
+            ],
+            resize_keyboard=True
         )
     
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text='Профиль')],
             [KeyboardButton(text='Создать команду'), KeyboardButton(text='Удалить команду')]
-        ]
+        ],
+        resize_keyboard=True
     )

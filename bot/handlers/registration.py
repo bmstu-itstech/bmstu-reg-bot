@@ -10,40 +10,6 @@ from .states import Registration, TeamFSM
 
 router = Router()
 
-
-@router.message(commands=['start'])
-async def start_handler(msg: Message, state: FSMContext):
-    user_id = msg.from_user.id
-
-    profile = await service.get_profile(user_id)
-
-    if not profile:
-        await msg.answer(
-            'Добро пожаловать в бота!',
-            reply_markup=register_kb
-        )
-    else:
-        team = await service.get_participant_team(user_id)
-        main_kb = create_profile_kb(True if team else False)
-
-        await msg.answer(
-            'Рады вас видеть снова)',
-            reply_markup=main_kb
-        )
-
-    # if not await service.check_agreement(user_id):
-    #     await msg.answer(
-    #         'Согласие на обработку ПД (152-ФЗ). Вы согласны?',
-    #         reply_markup=agreement_kb
-    #     )
-    #     return
-
-    profile = await service.get_profile(user_id)
-    if not profile:
-        await msg.answer('Для продолжения нужна регистрация. Давайте начнем.')
-        await state.set_state(Registration.agreement)
-    
-
 @router.message(F.text, Registration.agreement)
 async def register_handler(msg: Message, state: FSMContext):
     await msg.answer(
@@ -74,7 +40,7 @@ async def input_fio(msg: Message, state: FSMContext):
     await state.set_state(Registration.university)
 
 
-@router.message(F.text, Registration.university)
+@router.callback_query(F.text, Registration.university)
 async def university(query: CallbackQuery, callback_data: str, state: FSMContext):
     if callback_data == 'bmstu':
         await state.update_state(university='МГТУ им. Баумана')
@@ -136,7 +102,7 @@ async def input_passport(msg: Message, state: FSMContext):
         )
 
 
-@router.message(Registration.confirm)
+@router.callback_query(Registration.confirm)
 async def confirm(query: CallbackQuery, callback_data: str, state: FSMContext):
     if callback_data == 'confirmed':
         data = state.get_data()
@@ -153,7 +119,7 @@ async def confirm(query: CallbackQuery, callback_data: str, state: FSMContext):
             team_id=None
         )
     else:
-        await msg.answer('Регистрация отменена.')
+        await query.answer('Регистрация отменена.')
         await state.clear()
         await state.set_state()
 

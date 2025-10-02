@@ -9,6 +9,5 @@ class Registration(StatesGroup):
     passport = State()
     confirm = State()
 
-class TeamFSM(StatesGroup):
+class Team(StatesGroup):
     name = State()
-    join_code = State()
