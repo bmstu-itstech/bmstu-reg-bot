@@ -21,12 +21,11 @@ async def start_handler(msg: Message, state: FSMContext):
     )
 
     params = msg.text.split()
+    team_name = None
     if len(params) > 1:
         global team_cache
         team_name = params[1]
         team_cache[msg.from_user.id] = team_name
-        print(team_cache.get(msg.from_user.id))
-
 
     user_id = msg.from_user.id
 
@@ -40,7 +39,6 @@ async def start_handler(msg: Message, state: FSMContext):
         return
     else:
         team = await service.get_participant_team(user_id)
-
         await msg.answer(
             'Рады вас видеть снова)',
             reply_markup=create_profile_kb(True if team else False)
