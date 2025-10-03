@@ -79,6 +79,7 @@ class PostgresDatabase(DatabaseBase):
     async def init_db(self):
         async with self._engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+        await self._engine.dispose()
 
     async def create_participant(self, **kwargs) -> ParticipantEntity:
         async with self._SessionLocal() as session:
