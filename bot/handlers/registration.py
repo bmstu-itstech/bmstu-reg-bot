@@ -103,7 +103,7 @@ async def input_group(msg: Message, state: FSMContext):
 async def input_passport(msg: Message, state: FSMContext):
     passport_data = msg.text.split(' ')
     if len(passport_data) != 2:
-        msg.answer('Введенные данные некорректны, попробуйте еще раз')
+        await msg.answer('Введенные данные некорректны, попробуйте еще раз')
         await state.set_state(Registration.passport)
 
     passport_data = ''.join(passport_data)

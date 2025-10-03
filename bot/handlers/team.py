@@ -23,7 +23,7 @@ async def display_my_team(msg: Message):
         team = await service.get_participant_team(user_id)
 
         if not team:
-            msg.answer(
+            await msg.answer(
                 'Вашей команды не сущетсвует',
                 reply_markup=create_profile_kb(has_team=False)
             )
