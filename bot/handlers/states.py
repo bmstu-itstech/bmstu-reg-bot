@@ -1,5 +1,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
+
 class Registration(StatesGroup):
     start = State()
     agreement = State()

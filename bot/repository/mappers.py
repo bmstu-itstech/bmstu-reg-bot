@@ -1,6 +1,7 @@
-from domain.models import ParticipantEntity, TeamEntity
-from .models import Participant, Team
 from typing import List
+
+from bot.domain.models import ParticipantEntity, TeamEntity
+from bot.repository.models import Participant, Team
 
 
 def participant_orm_to_entity(orm_obj: Participant) -> ParticipantEntity:

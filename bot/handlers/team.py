@@ -1,13 +1,12 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.storage.memory import MemoryStorage
 
-from services.exc import NotRegistered, TooManyTeammates, AlreadyExists
-from services.service import service
+from bot.services.exc import NotRegistered, TooManyTeammates, AlreadyExists
+from bot.services.service import service
+from bot.handlers.keyboards import register_kb, create_profile_kb
+from bot.handlers.states import Team
 from config import BOT_TELEGRAM_NAME, MAX_TEAMMATES
-from .keyboards import agreement_kb, university_kb, register_kb, create_profile_kb, confirm_kb
-from .states import Registration, Team
 
 
 router = Router()

@@ -1,1 +1,0 @@
-SQLITE_DATABASE_URL='sqlite+aiosqlite:///./data/test.db'
