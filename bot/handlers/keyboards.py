@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 agreement_kb = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Согласен", callback_data="agree")]
+        [KeyboardButton(text="Согласен")]
     ],
     resize_keyboard=True,
     one_time_keyboard=True
@@ -10,8 +10,8 @@ agreement_kb = ReplyKeyboardMarkup(
 
 university_kb = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text='Да', callback_data='bmstu')],
-        [KeyboardButton(text='Нет', callback_data='other_university')]
+        [KeyboardButton(text='Да')],
+        [KeyboardButton(text='Нет')]
     ],
     resize_keyboard=True,
     one_time_keyboard=True
@@ -28,8 +28,8 @@ register_kb = ReplyKeyboardMarkup(
 confirm_kb = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text='Да', callback_data='confirmed'), 
-            KeyboardButton(text='Нет', callback_data='not_confirmed')
+            KeyboardButton(text='Да'),
+            KeyboardButton(text='Нет')
         ]
     ],
     resize_keyboard=True,
@@ -42,9 +42,10 @@ def create_profile_kb(has_team: bool):
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text='Профиль')],
-                [KeyboardButton(text='Покинуть команду'), KeyboardButton(text='Команда')]
+                [KeyboardButton(text='Покинуть команду')]
             ],
-            resize_keyboard=True
+            resize_keyboard=True,
+            one_time_keyboard=True
         )
     
     return ReplyKeyboardMarkup(
@@ -53,5 +54,6 @@ def create_profile_kb(has_team: bool):
             [KeyboardButton(text='Вступить в команду')],
             [KeyboardButton(text='Создать команду')]
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
+        one_time_keyboard=True
     )
